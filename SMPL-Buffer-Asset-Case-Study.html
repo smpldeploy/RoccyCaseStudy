@@ -1,0 +1,1376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>The Buffer Asset Decision — SMPL Mortgage</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+<style>
+  /* ── SMPL Brand Tokens ── */
+  :root {
+    --teal:        #1B5E6B;
+    --teal-mid:    #144A55;
+    --teal-dark:   #0E3740;
+    --teal-light:  #2A7A8C;
+    --gold:        #C8922A;
+    --gold-light:  #DBA94A;
+    --gold-pale:   #F0D9A8;
+    --cream:       #F5F0E4;
+    --cream-dark:  #E8E0CC;
+    --white:       #FFFFFF;
+    --ink:         #1A2830;
+    --muted:       #6B7E85;
+    --path-a:      #C8922A;
+    --path-b:      #1B5E6B;
+    --path-c:      #2A7A8C;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 400;
+    background: var(--cream);
+    color: var(--ink);
+    line-height: 1.65;
+    overflow-x: hidden;
+  }
+
+  /* ── Reveal Animation ── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.75s ease, transform 0.75s ease;
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* ── Typography ── */
+  h1, h2, h3, .serif { font-family: 'Cormorant Garamond', serif; }
+
+  /* ── Section scaffolding ── */
+  section { padding: 88px 24px; }
+  .container { max-width: 960px; margin: 0 auto; }
+  .section-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 40px;
+  }
+  .label-num {
+    font-family: 'Cormorant Garamond', serif;
+    color: var(--gold);
+    font-size: 13px;
+    letter-spacing: 0.1em;
+  }
+  .label-line {
+    width: 32px;
+    height: 1px;
+    background: rgba(200,146,42,0.45);
+  }
+  .label-text {
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 500;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    background: linear-gradient(150deg, var(--teal-dark) 0%, var(--teal) 50%, var(--teal-mid) 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 80px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 60% at 80% 20%, rgba(200,146,42,0.12) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 40% at 10% 80%, rgba(255,255,255,0.04) 0%, transparent 70%);
+  }
+  .hero-inner {
+    max-width: 800px;
+    position: relative;
+    z-index: 2;
+  }
+  .hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(200,146,42,0.15);
+    border: 1px solid rgba(200,146,42,0.35);
+    border-radius: 2px;
+    padding: 6px 14px;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold-light);
+    font-weight: 500;
+    margin-bottom: 28px;
+    animation: fadeUp 0.8s ease both;
+  }
+  .hero-rule {
+    width: 64px;
+    height: 1px;
+    background: var(--gold);
+    margin-bottom: 28px;
+    animation: fadeUp 0.8s 0.15s ease both;
+  }
+  .hero h1 {
+    font-size: clamp(40px, 7vw, 82px);
+    font-weight: 300;
+    color: var(--white);
+    line-height: 1.1;
+    margin-bottom: 24px;
+    animation: fadeUp 0.9s 0.25s ease both;
+  }
+  .hero h1 em {
+    color: var(--gold-light);
+    font-style: italic;
+  }
+  .hero-subtitle {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(18px, 2.5vw, 24px);
+    font-weight: 300;
+    color: rgba(255,255,255,0.6);
+    max-width: 560px;
+    animation: fadeUp 0.9s 0.4s ease both;
+  }
+  .hero-meta {
+    margin-top: 48px;
+    display: flex;
+    gap: 40px;
+    flex-wrap: wrap;
+    animation: fadeUp 0.9s 0.55s ease both;
+  }
+  .hero-stat { text-align: left; }
+  .hero-stat-val {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 36px;
+    font-weight: 600;
+    color: var(--gold-light);
+    display: block;
+  }
+  .hero-stat-lbl {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.45);
+  }
+  .hero-scroll {
+    position: absolute;
+    bottom: 36px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    color: rgba(255,255,255,0.3);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    animation: fadeUp 1s 1s ease both;
+  }
+  .scroll-line {
+    width: 1px;
+    height: 40px;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.35), transparent);
+    animation: scrollPulse 2s 1.5s ease-in-out infinite;
+  }
+  @keyframes scrollPulse {
+    0%, 100% { opacity: 0.4; transform: scaleY(1); }
+    50% { opacity: 1; transform: scaleY(1.2); }
+  }
+
+  /* ── SECTION 01 – Situation ── */
+  .sec-situation { background: var(--cream); }
+  .situation-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 64px;
+    align-items: start;
+  }
+  .situation-body h2 {
+    font-size: clamp(30px, 4vw, 46px);
+    font-weight: 300;
+    line-height: 1.2;
+    color: var(--teal-dark);
+    margin-bottom: 20px;
+  }
+  .situation-body h2 em { color: var(--gold); font-style: italic; }
+  .situation-body p {
+    font-size: 15px;
+    color: var(--muted);
+    line-height: 1.75;
+    margin-bottom: 16px;
+  }
+  .setup-card {
+    background: var(--white);
+    border-radius: 12px;
+    padding: 36px;
+    border-top: 3px solid var(--gold);
+    box-shadow: 0 4px 32px rgba(14,55,64,0.08);
+  }
+  .setup-card h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--teal);
+    margin-bottom: 24px;
+  }
+  .setup-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--cream-dark);
+    gap: 16px;
+  }
+  .setup-row:last-child { border-bottom: none; }
+  .setup-lbl { font-size: 12px; color: var(--muted); letter-spacing: 0.05em; }
+  .setup-val {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--teal-dark);
+    white-space: nowrap;
+  }
+  .setup-val.gold { color: var(--gold); }
+
+  /* ── SECTION 02 – Three Paths ── */
+  .sec-paths { background: var(--white); }
+  .paths-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-top: 8px;
+  }
+  .path-card {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 32px rgba(14,55,64,0.09);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .path-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 48px rgba(14,55,64,0.14);
+  }
+  .path-header {
+    padding: 24px 28px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .path-header.a { background: linear-gradient(135deg, #7A5C1E, var(--gold)); }
+  .path-header.b { background: linear-gradient(135deg, var(--teal-dark), var(--teal)); }
+  .path-header.c { background: linear-gradient(135deg, var(--teal-mid), var(--teal-light)); }
+  .path-badge {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: white;
+    flex-shrink: 0;
+  }
+  .path-header-text { color: white; }
+  .path-header-text h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.2;
+  }
+  .path-header-text .path-tag {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    opacity: 0.7;
+    margin-top: 2px;
+  }
+  .path-body {
+    background: var(--white);
+    padding: 28px;
+  }
+  .path-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 9px 0;
+    border-bottom: 1px solid var(--cream-dark);
+    font-size: 13px;
+    gap: 12px;
+  }
+  .path-line:last-child { border-bottom: none; }
+  .path-line-lbl { color: var(--muted); flex-shrink: 0; }
+  .path-line-val {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--teal-dark);
+    text-align: right;
+  }
+  .path-line-val.gold { color: var(--gold); }
+  .path-line-val.teal { color: var(--teal); }
+  .path-note {
+    margin-top: 18px;
+    padding: 12px 14px;
+    background: var(--cream);
+    border-radius: 6px;
+    font-size: 12px;
+    color: var(--muted);
+    font-style: italic;
+    line-height: 1.55;
+  }
+
+  /* ── SECTION 03 – Chart ── */
+  .sec-chart { background: var(--cream); }
+  .chart-intro {
+    max-width: 640px;
+    margin-bottom: 40px;
+  }
+  .chart-intro h2 {
+    font-size: clamp(28px, 3.5vw, 42px);
+    font-weight: 300;
+    color: var(--teal-dark);
+    margin-bottom: 12px;
+    line-height: 1.25;
+  }
+  .chart-intro h2 em { color: var(--gold); font-style: italic; }
+  .chart-intro p { font-size: 15px; color: var(--muted); line-height: 1.75; }
+  .chart-wrap {
+    background: var(--white);
+    border-radius: 16px;
+    padding: 40px 36px 32px;
+    box-shadow: 0 4px 40px rgba(14,55,64,0.09);
+  }
+  .chart-legend {
+    display: flex;
+    gap: 28px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 500;
+    letter-spacing: 0.05em;
+  }
+  .legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  #netWorthChart { width: 100%; height: 340px; display: block; }
+  .chart-crash-note {
+    margin-top: 16px;
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .crash-tag {
+    font-size: 11px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .crash-tag::before {
+    content: '▼';
+    color: #C0392B;
+    font-size: 9px;
+  }
+
+  /* ── SECTION 04 – Results ── */
+  .sec-results { background: var(--white); }
+  .result-banner {
+    background: linear-gradient(135deg, var(--teal-dark) 0%, var(--teal) 100%);
+    border-radius: 16px;
+    padding: 52px 48px;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 48px;
+  }
+  .result-banner::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 50% 70% at 85% 30%, rgba(200,146,42,0.18) 0%, transparent 65%);
+  }
+  .result-banner-inner {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 40px;
+    align-items: center;
+  }
+  .result-eyebrow {
+    font-size: 10px;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--gold-light);
+    margin-bottom: 12px;
+  }
+  .result-headline {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(34px, 5vw, 58px);
+    font-weight: 300;
+    color: var(--white);
+    line-height: 1.15;
+  }
+  .result-headline em { color: var(--gold-light); font-style: italic; }
+  .result-sub {
+    margin-top: 12px;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 18px;
+    color: rgba(255,255,255,0.55);
+  }
+  .result-badge {
+    background: var(--gold);
+    border-radius: 12px;
+    padding: 28px 32px;
+    text-align: center;
+    min-width: 180px;
+    flex-shrink: 0;
+  }
+  .badge-label {
+    font-size: 9px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: rgba(14,55,64,0.7);
+    margin-bottom: 8px;
+  }
+  .badge-val {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 38px;
+    font-weight: 600;
+    color: var(--teal-dark);
+    line-height: 1;
+  }
+  .badge-sub {
+    font-size: 11px;
+    color: rgba(14,55,64,0.6);
+    margin-top: 6px;
+  }
+
+  /* Comparison table */
+  .compare-table { width: 100%; border-collapse: collapse; }
+  .compare-table th {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 500;
+    padding: 12px 16px;
+    text-align: right;
+    border-bottom: 2px solid var(--cream-dark);
+  }
+  .compare-table th:first-child { text-align: left; }
+  .compare-table td {
+    padding: 14px 16px;
+    font-size: 14px;
+    border-bottom: 1px solid var(--cream-dark);
+    text-align: right;
+    color: var(--muted);
+  }
+  .compare-table td:first-child {
+    text-align: left;
+    font-size: 13px;
+    color: var(--ink);
+    font-weight: 500;
+  }
+  .compare-table .val-serif {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--teal-dark);
+  }
+  .compare-table .val-gold {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--gold);
+  }
+  .compare-table .val-teal {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--teal);
+  }
+  .compare-table .highlight-row td {
+    background: linear-gradient(135deg, rgba(27,94,107,0.06), rgba(200,146,42,0.06));
+    font-weight: 600;
+  }
+  .compare-table .highlight-row td:first-child { color: var(--teal-dark); }
+  .col-a { color: var(--gold) !important; }
+  .col-b { color: var(--teal) !important; }
+  .col-c { color: var(--teal-light) !important; }
+
+  /* ── SECTION 05 – Why It Works ── */
+  .sec-why { background: var(--cream); }
+  .sec-why h2 {
+    font-size: clamp(28px, 3.5vw, 44px);
+    font-weight: 300;
+    color: var(--teal-dark);
+    margin-bottom: 48px;
+    max-width: 560px;
+    line-height: 1.25;
+  }
+  .sec-why h2 em { color: var(--gold); font-style: italic; }
+  .pillars {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-bottom: 56px;
+  }
+  .pillar {
+    background: var(--white);
+    border-radius: 12px;
+    padding: 32px 28px;
+    border-top: 3px solid var(--cream-dark);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 2px 16px rgba(14,55,64,0.06);
+  }
+  .pillar:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 32px rgba(14,55,64,0.12);
+  }
+  .pillar:nth-child(1) { border-top-color: var(--gold); }
+  .pillar:nth-child(2) { border-top-color: var(--teal); }
+  .pillar:nth-child(3) { border-top-color: var(--teal-light); }
+  .pillar-icon { font-size: 28px; margin-bottom: 16px; }
+  .pillar h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--teal-dark);
+    margin-bottom: 10px;
+  }
+  .pillar p { font-size: 13px; color: var(--muted); line-height: 1.7; }
+
+  /* Pull quote */
+  .pull-quote {
+    border-left: 3px solid var(--gold);
+    padding: 8px 0 8px 32px;
+    margin: 48px 0;
+  }
+  .pull-quote blockquote {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: clamp(22px, 3vw, 30px);
+    color: var(--teal-dark);
+    line-height: 1.4;
+    margin-bottom: 12px;
+  }
+  .pull-quote cite {
+    font-style: normal;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+
+  /* HECM draw table */
+  .draw-table-wrap {
+    background: var(--white);
+    border-radius: 12px;
+    padding: 32px;
+    box-shadow: 0 2px 20px rgba(14,55,64,0.07);
+    margin-top: 40px;
+  }
+  .draw-table-wrap h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--teal);
+    margin-bottom: 20px;
+  }
+  .draw-row {
+    display: grid;
+    grid-template-columns: 80px 100px 1fr 140px;
+    gap: 16px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--cream-dark);
+    align-items: center;
+    font-size: 14px;
+  }
+  .draw-row.header {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding-bottom: 10px;
+  }
+  .draw-row:last-child { border-bottom: none; }
+  .draw-year { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 600; color: var(--teal-dark); }
+  .draw-event { font-size: 12px; color: var(--muted); font-style: italic; }
+  .draw-why { font-size: 13px; color: var(--ink); }
+  .draw-amount {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--gold);
+    text-align: right;
+  }
+
+  /* ── SECTION 06 – CTA ── */
+  .sec-cta { background: var(--teal-dark); padding: 80px 24px; }
+  .cta-inner {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  .cta-strip {
+    background: linear-gradient(135deg, var(--teal-mid) 0%, var(--teal) 100%);
+    border-radius: 16px;
+    padding: 52px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 40px;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(200,146,42,0.25);
+  }
+  .cta-strip::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 60% 80% at 90% 50%, rgba(200,146,42,0.12) 0%, transparent 70%);
+  }
+  .cta-text { position: relative; z-index: 2; }
+  .cta-text h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(26px, 3.5vw, 40px);
+    font-weight: 300;
+    color: var(--white);
+    line-height: 1.25;
+    margin-bottom: 10px;
+  }
+  .cta-text h2 em { color: var(--gold-light); font-style: italic; }
+  .cta-text p { font-size: 14px; color: rgba(255,255,255,0.55); max-width: 400px; }
+  .cta-badges {
+    display: flex;
+    gap: 16px;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 2;
+    flex-wrap: wrap;
+  }
+  .cta-badge {
+    background: var(--gold);
+    border-radius: 10px;
+    padding: 20px 24px;
+    text-align: center;
+    min-width: 140px;
+  }
+  .cta-badge.teal {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+  }
+  .cta-badge .badge-label {
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .cta-badge .badge-val {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-weight: 600;
+    line-height: 1.1;
+  }
+  .cta-badge:not(.teal) .badge-label { color: rgba(14,55,64,0.65); }
+  .cta-badge:not(.teal) .badge-val { color: var(--teal-dark); }
+  .cta-badge.teal .badge-label { color: rgba(255,255,255,0.5); }
+  .cta-badge.teal .badge-val { color: white; }
+
+  /* ── FOOTER ── */
+  .footer {
+    background: var(--teal-dark);
+    border-top: 1px solid rgba(255,255,255,0.08);
+    padding: 40px 24px;
+    text-align: center;
+    color: rgba(255,255,255,0.35);
+    font-size: 11px;
+    line-height: 1.9;
+    letter-spacing: 0.04em;
+  }
+  .footer-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--gold-light);
+    letter-spacing: 0.05em;
+    margin-bottom: 16px;
+  }
+  .footer-logo span { color: rgba(255,255,255,0.5); font-weight: 300; }
+
+  /* ── Responsive ── */
+  @media (max-width: 760px) {
+    .situation-body { grid-template-columns: 1fr; gap: 36px; }
+    .paths-grid { grid-template-columns: 1fr; }
+    .pillars { grid-template-columns: 1fr; }
+    .result-banner-inner { grid-template-columns: 1fr; }
+    .cta-strip { flex-direction: column; padding: 36px 28px; }
+    .draw-row { grid-template-columns: 70px 1fr 100px; }
+    .draw-event { display: none; }
+    section { padding: 60px 20px; }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════
+     HERO
+══════════════════════════════════════════════════════ -->
+<header class="hero">
+  <div class="hero-inner">
+    <div class="hero-eyebrow">SMPL Mortgage · Generational Lending · Case Study</div>
+    <div class="hero-rule"></div>
+    <h1>Which buffer<br>wins<em> the long game?</em></h1>
+    <p class="hero-subtitle">A 23-year comparison of cash reserves versus a HECM line of credit — using real market returns, 2000–2022.</p>
+    <div class="hero-meta">
+      <div class="hero-stat">
+        <span class="hero-stat-val">$573K</span>
+        <span class="hero-stat-lbl">LOC advantage over cash buffer</span>
+      </div>
+      <div class="hero-stat">
+        <span class="hero-stat-val">$1.04M</span>
+        <span class="hero-stat-lbl">Total income with coordinated strategy</span>
+      </div>
+      <div class="hero-stat">
+        <span class="hero-stat-val">3</span>
+        <span class="hero-stat-lbl">Crashes survived without forced liquidation</span>
+      </div>
+    </div>
+  </div>
+  <div class="hero-scroll">
+    <div class="scroll-line"></div>
+    Scroll
+  </div>
+</header>
+
+<!-- ══════════════════════════════════════════════════════
+     01 – THE SITUATION
+══════════════════════════════════════════════════════ -->
+<section class="sec-situation">
+  <div class="container">
+    <div class="section-label reveal">
+      <span class="label-num">01</span>
+      <div class="label-line"></div>
+      <span class="label-text">The Situation</span>
+    </div>
+    <div class="situation-body">
+      <div>
+        <h2 class="reveal">A home sale.<br>A <em>$300,000</em> decision.</h2>
+        <p class="reveal">Robert is 65, retiring this year, and ready to downsize. He sells his longtime home for $800,000, buys a smaller property for $500,000, and holds $1,000,000 in investable assets. The sale puts $300,000 in his pocket.</p>
+        <p class="reveal">His advisor frames the question cleanly: <em>What is the most efficient way to use that equity as a buffer — so the portfolio can stay invested and compound through every market cycle?</em></p>
+        <p class="reveal">Three paths are on the table. All start from the same home sale. All face the same 23 years of actual market history — including three major crashes. The numbers tell the rest of the story.</p>
+      </div>
+      <div class="setup-card reveal">
+        <h3>Robert's Starting Position</h3>
+        <div class="setup-row">
+          <span class="setup-lbl">Home Sold For</span>
+          <span class="setup-val">$800,000</span>
+        </div>
+        <div class="setup-row">
+          <span class="setup-lbl">New Home Purchased</span>
+          <span class="setup-val">$500,000</span>
+        </div>
+        <div class="setup-row">
+          <span class="setup-lbl">Sale Proceeds</span>
+          <span class="setup-val gold">$300,000</span>
+        </div>
+        <div class="setup-row">
+          <span class="setup-lbl">Investable Assets</span>
+          <span class="setup-val">$1,000,000</span>
+        </div>
+        <div class="setup-row">
+          <span class="setup-lbl">Annual Distribution Need</span>
+          <span class="setup-val">3%</span>
+        </div>
+        <div class="setup-row">
+          <span class="setup-lbl">Home Appreciation Rate</span>
+          <span class="setup-val">3% / yr</span>
+        </div>
+        <div class="setup-row">
+          <span class="setup-lbl">Time Horizon</span>
+          <span class="setup-val">23 Years</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     02 – THE THREE PATHS
+══════════════════════════════════════════════════════ -->
+<section class="sec-paths">
+  <div class="container">
+    <div class="section-label reveal">
+      <span class="label-num">02</span>
+      <div class="label-line"></div>
+      <span class="label-text">The Three Paths</span>
+    </div>
+    <div style="max-width:600px; margin-bottom:40px;">
+      <h2 class="serif reveal" style="font-size:clamp(28px,3.5vw,42px);font-weight:300;color:var(--teal-dark);line-height:1.25;margin-bottom:12px;">Same home sale.<br>Three very different balance sheets.</h2>
+      <p class="reveal" style="font-size:15px;color:var(--muted);line-height:1.75;">Each path starts from an identical event — the $800,000 home sale. What changes is how Robert structures his buffer. The market returns are identical across all three scenarios; only the strategy differs.</p>
+    </div>
+    <div class="paths-grid">
+
+      <!-- Path A -->
+      <div class="path-card reveal">
+        <div class="path-header a">
+          <div class="path-badge">A</div>
+          <div class="path-header-text">
+            <div class="path-tag">Traditional Approach</div>
+            <h3>Cash Buffer</h3>
+          </div>
+        </div>
+        <div class="path-body">
+          <div class="path-line">
+            <span class="path-line-lbl">Portfolio (invested)</span>
+            <span class="path-line-val">$1,300,000</span>
+          </div>
+          <div class="path-line">
+            <span class="path-line-lbl">Cash buffer (set aside)</span>
+            <span class="path-line-val">$300,000</span>
+          </div>
+          <div class="path-line">
+            <span class="path-line-lbl">HECM line of credit</span>
+            <span class="path-line-val" style="color:var(--muted);font-size:14px;">None</span>
+          </div>
+          <div class="path-line">
+            <span class="path-line-lbl">Home value</span>
+            <span class="path-line-val">$500,000</span>
+          </div>
+          <div class="path-line">
+            <span class="path-line-lbl">Total net worth</span>
+            <span class="path-line-val gold">$2,100,000</span>
+          </div>
+          <div class="path-note">$300,000 held in cash reserves earns minimal return for 23 years while the portfolio compounds.</div>
+        </div>
+      </div>
+
+      <!-- Path B -->
+      <div class="path-card reveal">
+        <div class="path-header b">
+          <div class="path-badge">B</div>
+          <div class="path-header-text">
+            <div class="path-tag">Coordinated · No Income</div>
+            <h3>HECM LOC Buffer</h3>
+          </div>
+        </div>
+        <div class="path-body">
+          <div class="path-line">
+            <span class="path-line-lbl">Portfolio (invested)</span>
+            <span class="path-line-val">$1,467,000</span>
+          </div>
+          <div class="path-line">
+            <span class="path-line-lbl">HECM LOC (growing)</span>
+            <span class="path-line-val teal">$167,000</span>
+          </div>
+          <div class="path-line">
+            <span class="path-line-lbl">Cash held idle</span>
+            <span class="path-line-val" style="color:var(--muted);font-size:14px;">$0</span>
+          </div>
+          <div class="path-line">
+            <span class="path-line-lbl">Home value</span>
+            <span class="path-line-val">$500,000</span>
+          </div>
+          <div class="path-line">
+            <span class="path-line-lbl">Total net worth</span>
+            <span class="path-line-val teal">$1,967,000</span>
+          </div>
+          <div class="path-note">$167K more invested from day one. The LOC grows at 6.16%/yr — automatically — whether drawn or not.</div>
+        </div>
+      </div>
+
+      <!-- Path C -->
+      <div class="path-card reveal">
+        <div class="path-header c">
+          <div class="path-badge">C</div>
+          <div class="path-header-text">
+            <div class="path-tag">Coordinated · 3% Income</div>
+            <h3>HECM LOC + Income</h3>
+          </div>
+        </div>
+        <div class="path-body">
+          <div class="path-line">
+            <span class="path-line-lbl">Portfolio (invested)</span>
+            <span class="path-line-val">$1,467,000</span>
+          </div>
+          <div class="path-line">
+            <span class="path-line-lbl">HECM LOC (growing)</span>
+            <span class="path-line-val teal">$167,000</span>
+          </div>
+          <div class="path-line">
+            <span class="path-line-lbl">Annual distribution</span>
+            <span class="path-line-val" style="color:var(--teal-light);">3% CPI-adj.</span>
+          </div>
+          <div class="path-line">
+            <span class="path-line-lbl">Home value</span>
+            <span class="path-line-val">$500,000</span>
+          </div>
+          <div class="path-line">
+            <span class="path-line-lbl">Total net worth</span>
+            <span class="path-line-val" style="color:var(--teal-light);">$1,967,000</span>
+          </div>
+          <div class="path-note">In down-market years, the HECM LOC covers distributions — keeping the portfolio fully invested through every recovery.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     03 – THE CHART
+══════════════════════════════════════════════════════ -->
+<section class="sec-chart">
+  <div class="container">
+    <div class="section-label reveal">
+      <span class="label-num">03</span>
+      <div class="label-line"></div>
+      <span class="label-text">23 Years of Real Returns</span>
+    </div>
+    <div class="chart-intro">
+      <h2 class="reveal">Three lines.<br>The same <em>market.</em></h2>
+      <p class="reveal">Each path faced identical S&P 500 and Bloomberg Aggregate returns from 2000–2022 — one of the most turbulent periods in modern market history. The strategy, not the market, determines the outcome.</p>
+    </div>
+    <div class="chart-wrap reveal">
+      <div class="chart-legend">
+        <div class="legend-item">
+          <div class="legend-dot" style="background:var(--path-a);"></div>
+          Path A — Cash Buffer (no income)
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background:var(--path-b);"></div>
+          Path B — HECM LOC, no income
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background:var(--path-c);"></div>
+          Path C — HECM LOC + 3% income
+        </div>
+      </div>
+      <canvas id="netWorthChart"></canvas>
+      <div class="chart-crash-note">
+        <span class="crash-tag">2000–2002 Dot-Com Crash</span>
+        <span class="crash-tag">2008 Financial Crisis</span>
+        <span class="crash-tag">2022 Bear Market</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     04 – THE RESULTS
+══════════════════════════════════════════════════════ -->
+<section class="sec-results">
+  <div class="container">
+    <div class="section-label reveal">
+      <span class="label-num">04</span>
+      <div class="label-line"></div>
+      <span class="label-text">The Final Scorecard</span>
+    </div>
+
+    <div class="result-banner reveal">
+      <div class="result-banner-inner">
+        <div>
+          <div class="result-eyebrow">Path B Advantage — Age 87</div>
+          <div class="result-headline">The HECM LOC outperformed<br>the cash buffer by <em>$573,355</em></div>
+          <div class="result-sub">Without taking a single dollar of income. The only difference was how the buffer was structured.</div>
+        </div>
+        <div class="result-badge">
+          <div class="badge-label">HECM LOC Growth</div>
+          <div class="badge-val">$686K</div>
+          <div class="badge-sub">Available. Unused. Zero balance.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal" style="overflow-x:auto;">
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Metric · Age 87 (Year 23)</th>
+            <th class="col-a">Path A<br>Cash Buffer</th>
+            <th class="col-b">Path B<br>HECM, No Income</th>
+            <th class="col-c">Path C<br>HECM + 3% Income</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Starting portfolio</td>
+            <td><span class="val-gold">$1,300,000</span></td>
+            <td><span class="val-teal">$1,467,000</span></td>
+            <td><span class="val-serif" style="color:var(--teal-light)">$1,467,000</span></td>
+          </tr>
+          <tr>
+            <td>Total distributions taken</td>
+            <td><span class="val-gold">$0</span></td>
+            <td><span class="val-teal">$0</span></td>
+            <td><span class="val-serif" style="color:var(--teal-light)">$1,045,305</span></td>
+          </tr>
+          <tr>
+            <td>Total HECM draws</td>
+            <td>—</td>
+            <td><span class="val-teal">$0</span></td>
+            <td><span class="val-serif" style="color:var(--teal-light)">$176,133</span></td>
+          </tr>
+          <tr>
+            <td>Final portfolio value</td>
+            <td><span class="val-gold">$4,463,248</span></td>
+            <td><span class="val-teal">$5,036,604</span></td>
+            <td><span class="val-serif" style="color:var(--teal-light)">$3,031,536</span></td>
+          </tr>
+          <tr>
+            <td>Final home value</td>
+            <td><span class="val-gold">$986,793</span></td>
+            <td><span class="val-teal">$986,793</span></td>
+            <td><span class="val-serif" style="color:var(--teal-light)">$986,793</span></td>
+          </tr>
+          <tr>
+            <td>HECM loan balance</td>
+            <td>$0</td>
+            <td><span class="val-teal">$0</span></td>
+            <td><span class="val-serif" style="color:var(--teal-light)">($657,549)</span></td>
+          </tr>
+          <tr>
+            <td>Net home equity</td>
+            <td><span class="val-gold">$986,793</span></td>
+            <td><span class="val-teal">$986,793</span></td>
+            <td><span class="val-serif" style="color:var(--teal-light)">$329,245</span></td>
+          </tr>
+          <tr>
+            <td>LOC still available</td>
+            <td>—</td>
+            <td><span class="val-teal">$686,200</span></td>
+            <td><span class="val-serif" style="color:var(--teal-light)">$28,652</span></td>
+          </tr>
+          <tr>
+            <td>Cash buffer remaining</td>
+            <td><span class="val-gold">~$300,000</span></td>
+            <td>—</td>
+            <td>—</td>
+          </tr>
+          <tr class="highlight-row">
+            <td>Total Net Worth</td>
+            <td><span class="val-gold">$5,450,042</span></td>
+            <td><span class="val-teal">$6,023,397</span></td>
+            <td><span class="val-serif" style="color:var(--teal-light)">$3,360,780</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="reveal" style="font-size:12px;color:var(--muted);margin-top:16px;font-style:italic;">Path A total net worth includes $300,000 cash buffer held separately throughout the period. All returns based on actual S&P 500 and Bloomberg U.S. Aggregate annual returns, 2000–2022. This is a hypothetical illustration and not a guarantee of future performance.</p>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     05 – WHY IT WORKS
+══════════════════════════════════════════════════════ -->
+<section class="sec-why">
+  <div class="container">
+    <div class="section-label reveal">
+      <span class="label-num">05</span>
+      <div class="label-line"></div>
+      <span class="label-text">Why the Strategy Works</span>
+    </div>
+    <h2 class="reveal">Three structural advantages.<br>One <em>coordinated plan.</em></h2>
+
+    <div class="pillars">
+      <div class="pillar reveal">
+        <div class="pillar-icon">📈</div>
+        <h3>More in the Market</h3>
+        <p>Path B starts with $167,000 more invested than Path A. That difference, compounded over 23 years at market rates, accounts for a substantial portion of the $573,355 advantage — before the LOC growth even enters the calculation.</p>
+      </div>
+      <div class="pillar reveal">
+        <div class="pillar-icon">🔒</div>
+        <h3>The LOC Grows Either Way</h3>
+        <p>The $167,000 HECM line of credit grows at 6.16% compounded annually — whether drawn or not. By year 23, it reached $686,200 available, at zero cost to Robert. The $300,000 cash buffer earned nearly nothing over the same period.</p>
+      </div>
+      <div class="pillar reveal">
+        <div class="pillar-icon">🛡️</div>
+        <h3>No Forced Selling</h3>
+        <p>Path C drew just $176,133 from the HECM across three crash years — covering distributions without touching the portfolio at market lows. This single behavioral advantage — staying fully invested through every recovery — is what separates coordinated strategy from conventional planning.</p>
+      </div>
+    </div>
+
+    <div class="pull-quote reveal">
+      <blockquote>"Robert took over a million dollars in retirement income across 23 years — and still ended with $3.36 million in net worth. The HECM line didn't cost him retirement. It funded it."</blockquote>
+      <cite>SMPL Mortgage · HECM Interest Stacking Analysis</cite>
+    </div>
+
+    <div class="draw-table-wrap reveal">
+      <h3>Path C — HECM Line of Credit Draws (Down-Market Years Only)</h3>
+      <div class="draw-row header">
+        <span>Year</span>
+        <span>Event</span>
+        <span>Why the LOC Was Used</span>
+        <span style="text-align:right">Amount Drawn</span>
+      </div>
+      <div class="draw-row">
+        <span class="draw-year">2001</span>
+        <span class="draw-event">Dot-Com Crash</span>
+        <span class="draw-why">S&P returned −11.9%. The LOC covered the distribution instead of forcing a sale at a depressed value.</span>
+        <span class="draw-amount">$45,506</span>
+      </div>
+      <div class="draw-row">
+        <span class="draw-year">2008</span>
+        <span class="draw-event">Financial Crisis</span>
+        <span class="draw-why">S&P returned −37.0%. The portfolio dropped sharply; the LOC stepped in to preserve remaining capital for the recovery.</span>
+        <span class="draw-amount">$54,830</span>
+      </div>
+      <div class="draw-row">
+        <span class="draw-year">2022</span>
+        <span class="draw-event">Rate Hike Bear Market</span>
+        <span class="draw-why">S&P returned −18.1%. Final LOC draw kept the portfolio intact heading into recovery.</span>
+        <span class="draw-amount">$75,797</span>
+      </div>
+      <div class="draw-row" style="border-top:2px solid var(--cream-dark);margin-top:8px;">
+        <span class="draw-year" style="color:var(--gold);">Total</span>
+        <span></span>
+        <span class="draw-why" style="color:var(--muted);font-style:italic;">$28,652 still available in the LOC at age 87 · Loan balance: $657,549</span>
+        <span class="draw-amount">$176,133</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     06 – CTA
+══════════════════════════════════════════════════════ -->
+<section class="sec-cta">
+  <div class="cta-inner">
+    <div class="section-label reveal" style="--gold:rgba(200,146,42,0.8);">
+      <span class="label-num" style="color:rgba(200,146,42,0.7);">06</span>
+      <div class="label-line" style="background:rgba(200,146,42,0.3);"></div>
+      <span class="label-text" style="color:rgba(255,255,255,0.35);">The Advisor Conversation</span>
+    </div>
+    <div class="cta-strip reveal">
+      <div class="cta-text">
+        <h2>Your clients are already<br>setting aside a <em>buffer.</em></h2>
+        <p>The question has never been whether to have one. It's whether a growing, tax-free line of credit is a more efficient buffer than idle cash — and what the difference compounds to over a retirement.</p>
+      </div>
+      <div class="cta-badges">
+        <div class="cta-badge">
+          <div class="badge-label">LOC Advantage</div>
+          <div class="badge-val">$573K</div>
+        </div>
+        <div class="cta-badge teal">
+          <div class="badge-label">Income Delivered</div>
+          <div class="badge-val">$1.04M</div>
+        </div>
+      </div>
+    </div>
+    <p class="reveal" style="margin-top:32px;font-size:13px;color:rgba(255,255,255,0.3);text-align:center;max-width:640px;margin-left:auto;margin-right:auto;line-height:1.8;">The HECM line of credit is not a product sale. It is a balance sheet optimization. The advisor who can show this comparison — with real numbers and real market history — is having a conversation that almost no one else in the room is having.</p>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     FOOTER
+══════════════════════════════════════════════════════ -->
+<footer class="footer">
+  <div class="footer-logo">SMPL <span>Mortgage</span></div>
+  John Thompson, CRMP · C2 Financial Corp. · DBA SMPL Mortgage – Generational Lending<br>
+  NMLS# [Your NMLS] · CA DRE# [Your DRE] · Licensed in [States]<br><br>
+  <strong style="color:rgba(255,255,255,0.5);">Prepared for educational purposes by Todd Ballenger and SMPL Mortgage.</strong><br><br>
+  This case study is a hypothetical illustration based on actual S&P 500 Total Return and Bloomberg U.S. Aggregate Bond Index annual returns for calendar years 2000–2022, sourced from publicly available data. It is not a guarantee of future performance and does not constitute financial, investment, legal, or tax advice. Home values, HECM principal limits, loan balances, and credit line growth rates are illustrative and based on assumptions that may differ from actual client circumstances. HECM loans are insured by the Federal Housing Administration (FHA). Borrowers must meet all eligibility requirements, including age, property standards, and counseling. The HECM line of credit growth rate is tied to the loan's expected rate and is not guaranteed. Past performance is not indicative of future results. Consult a licensed financial advisor, CPA, and HECM specialist before making any financial decisions.<br><br>
+  © 2026 SMPL Mortgage – Generational Lending. All rights reserved. "Every financial conversation has a calculation™"
+</footer>
+
+<!-- ══════════════════════════════════════════════════════
+     CHART JS (inline, no CDN dependency)
+══════════════════════════════════════════════════════ -->
+<script>
+// ── Data ──────────────────────────────────────────────
+const ages  = [65,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87];
+const labels = ages.map((a,i) => i === 0 ? 'Age 65\n(Inception)' : `Age ${a}`);
+
+const pathA = [2100000,1831250,1823731,1762695,1975401,2098091,2168702,2342916,2469277,2196371,2465760,2679290,2798518,3030554,3401503,3684613,3744012,3992531,4418311,4365728,5093141,5585332,6246574,5450042];
+const pathB = [1967000,2000338,1989868,1918946,2156872,2293154,2370602,2564895,2705118,2394714,2696194,2934566,3066443,3325539,3741311,4057874,4121902,4399254,4876546,4813928,5631405,6183344,6925946,6023397];
+const pathC = [1967000,1956328,1898236,1777076,1954496,2028238,2043225,2157718,2219109,1897079,2081268,2208381,2245567,2373725,2609553,2765087,2737687,2847142,3081814,2955196,3390972,3645541,4007565,3360780];
+
+// Crash years (index positions)
+const crashYears = [1,2,3,8,22]; // 2001,2002 dot-com; 2008; 2022
+
+// ── Canvas renderer ───────────────────────────────────
+const canvas = document.getElementById('netWorthChart');
+const ctx = canvas.getContext('2d');
+
+function setCanvasSize() {
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.parentElement.getBoundingClientRect();
+  canvas.width  = rect.width * dpr;
+  canvas.height = 340 * dpr;
+  canvas.style.width  = rect.width + 'px';
+  canvas.style.height = '340px';
+  ctx.scale(dpr, dpr);
+}
+
+function fmt(v) {
+  if (v >= 1e6) return '$' + (v/1e6).toFixed(2) + 'M';
+  return '$' + Math.round(v/1000) + 'K';
+}
+
+function drawChart() {
+  setCanvasSize();
+  const w = canvas.width / (window.devicePixelRatio||1);
+  const h = canvas.height / (window.devicePixelRatio||1);
+  const pad = { top:20, right:80, bottom:56, left:72 };
+  const cw = w - pad.left - pad.right;
+  const ch = h - pad.top - pad.bottom;
+
+  const allVals = [...pathA,...pathB,...pathC];
+  const minV = Math.min(...allVals) * 0.92;
+  const maxV = Math.max(...allVals) * 1.04;
+  const n = pathA.length;
+
+  function xPos(i) { return pad.left + (i/(n-1))*cw; }
+  function yPos(v) { return pad.top + ch - ((v-minV)/(maxV-minV))*ch; }
+
+  ctx.clearRect(0,0,w,h);
+
+  // Grid lines
+  const gridCount = 5;
+  ctx.strokeStyle = 'rgba(27,94,107,0.08)';
+  ctx.lineWidth = 1;
+  ctx.font = '11px DM Sans';
+  ctx.fillStyle = '#6B7E85';
+  ctx.textAlign = 'right';
+  for(let g=0;g<=gridCount;g++){
+    const v = minV + (g/gridCount)*(maxV-minV);
+    const y = yPos(v);
+    ctx.beginPath();
+    ctx.moveTo(pad.left,y);
+    ctx.lineTo(pad.left+cw,y);
+    ctx.stroke();
+    ctx.fillText(fmt(v), pad.left-8, y+4);
+  }
+
+  // Crash shading
+  const crashColors = ['rgba(200,146,42,0.07)','rgba(200,146,42,0.07)','rgba(200,146,42,0.07)'];
+  const crashRanges = [[1,3],[8,9],[22,23]];
+  crashRanges.forEach((range,ri) => {
+    const x1 = xPos(range[0]);
+    const x2 = xPos(Math.min(range[1],n-1));
+    ctx.fillStyle = crashColors[ri];
+    ctx.fillRect(x1, pad.top, x2-x1, ch);
+  });
+
+  // Draw lines
+  const series = [
+    { data:pathA, color:'#C8922A', label:'Path A', width:2.5 },
+    { data:pathB, color:'#1B5E6B', label:'Path B', width:3 },
+    { data:pathC, color:'#2A7A8C', label:'Path C', width:2.5, dash:[6,3] },
+  ];
+
+  series.forEach(s => {
+    ctx.beginPath();
+    ctx.strokeStyle = s.color;
+    ctx.lineWidth = s.width;
+    ctx.lineJoin = 'round';
+    ctx.lineCap  = 'round';
+    if(s.dash) ctx.setLineDash(s.dash);
+    else ctx.setLineDash([]);
+    s.data.forEach((v,i) => {
+      i === 0 ? ctx.moveTo(xPos(i),yPos(v)) : ctx.lineTo(xPos(i),yPos(v));
+    });
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // End dot + label
+    const last = s.data[s.data.length-1];
+    const ex = xPos(n-1);
+    const ey = yPos(last);
+    ctx.beginPath();
+    ctx.arc(ex, ey, 5, 0, Math.PI*2);
+    ctx.fillStyle = s.color;
+    ctx.fill();
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    ctx.fillStyle = s.color;
+    ctx.font = 'bold 11px DM Sans';
+    ctx.textAlign = 'left';
+    const offset = s === series[0] ? 24 : s === series[1] ? 8 : 40;
+    ctx.fillText(fmt(last), ex+10, ey + (s === series[0] ? 12 : s === series[1] ? -4 : 4));
+  });
+
+  // X axis labels (selected ages)
+  ctx.fillStyle = '#6B7E85';
+  ctx.font = '10px DM Sans';
+  ctx.textAlign = 'center';
+  const showIdxs = [0,4,8,12,16,20,23];
+  showIdxs.forEach(i => {
+    const x = xPos(i);
+    ctx.fillText(`Age ${ages[i]}`, x, h - pad.bottom + 18);
+    ctx.beginPath();
+    ctx.strokeStyle = 'rgba(27,94,107,0.15)';
+    ctx.lineWidth = 1;
+    ctx.moveTo(x, pad.top+ch);
+    ctx.lineTo(x, pad.top+ch+5);
+    ctx.stroke();
+  });
+
+  // Crash labels
+  ctx.fillStyle = 'rgba(200,146,42,0.6)';
+  ctx.font = '9px DM Sans';
+  ctx.textAlign = 'center';
+  const crashLabels = [['2001–2002',xPos(2)], ['2008',xPos(8)], ['2022',xPos(22)]];
+  crashLabels.forEach(([lbl,x]) => ctx.fillText(lbl, x, pad.top + 10));
+}
+
+// ── Intersection-triggered draw ────────────────────────
+const chartWrap = canvas.closest('.chart-wrap');
+const chartObserver = new IntersectionObserver((entries) => {
+  if(entries[0].isIntersecting){ drawChart(); chartObserver.disconnect(); }
+},{threshold:0.3});
+chartObserver.observe(chartWrap);
+
+window.addEventListener('resize', () => {
+  if(chartWrap.classList.contains('visible')) drawChart();
+});
+
+// ── Scroll reveal ─────────────────────────────────────
+const revealObs = new IntersectionObserver((entries) => {
+  entries.forEach((entry, i) => {
+    if(entry.isIntersecting){
+      setTimeout(() => entry.target.classList.add('visible'), i * 70);
+      revealObs.unobserve(entry.target);
+    }
+  });
+},{threshold:0.1, rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+</script>
+</body>
+</html>

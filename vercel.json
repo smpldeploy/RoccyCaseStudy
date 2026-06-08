@@ -1,0 +1,5 @@
+{
+  "rewrites": [
+    { "source": "/", "destination": "/SMPL-Buffer-Asset-Case-Study.html" }
+  ]
+}
